@@ -12,14 +12,15 @@ mc:init({ appId = globals.appId, apiKey = globals.apiKey })
 
 mc.showStatus = true
 
---mc:run( "insert", {username = "André Cândido", facebookId="0021515448"} )
-
+mc:run( "select", {id="974063519271155"} )
+local player = {}
 
 
 local btnLogin = Botao.new("Login",20)
 local btnRequest = Botao.new("Request",30)
 local btnLogout = Botao.new("Logout",80)
-local brnNome
+local btnNome
+local btnPlayer
 
 local function facebookListener( event )
 
@@ -36,6 +37,9 @@ local function facebookListener( event )
         if ( "login" == event.phase ) then
             local access_token = event.token
             --code for tasks following a successful login
+            local params = { fields = "id,first_name,last_name" }
+            facebook.request( "me", "GET", params )
+            
         end
 
     elseif ( "request" == event.type ) then
@@ -43,17 +47,19 @@ local function facebookListener( event )
         print("facebook request")
         if ( not event.isError ) then
             local response = json.decode( event.response )
-            --local btnNome = Botao.new(response.id .. " " .. response.first_name .. " " .. response.last_name,50)
             
-            local function selectCallback( event )
-                if #event.result > 0 then
-                    btnNome = Botao.new(event.result[1].nom_jogador,50)   
-                else
-                    mc:run( "insert", {username = response.first_name .. " " .. response.last_name, facebookId=response.id} )
+            --local function selectCallback( event )
+            --    if #event.result > 0 then
+            --        btnNome = Botao.new(event.result[1].nom_jogador,50) 
+            --        player.nome = event.result[1].nom_jogador  
+            --    else
+            --        mc:run( "insert", {username = response.first_name .. " " .. response.last_name, facebookId=response.id} )
                     btnNome = Botao.new(response.first_name .. " " .. response.last_name,50) 
-                end
-            end
-            mc:run( "select", {id=response.id}, selectCallback)
+                    player.id = response.id
+                    player.nome = response.first_name .. " " .. response.last_name
+            --    end
+            --end
+            --mc:run( "select", {id=response.id}, selectCallback)
 
         end
 
@@ -71,8 +77,7 @@ btnLogin:addEventListener( "tap", function( )
 end )
 
 btnRequest:addEventListener( "tap", function ( )
-	local params = { fields = "id,first_name,last_name" }
-	facebook.request( "me", "GET", params )
+    btnPlayer = Botao.new(player.id .. " " .. player.nome, 60)    	
 end )
 
 btnLogout:addEventListener( "tap", function ( )
