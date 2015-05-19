@@ -41,6 +41,7 @@ local function facebookListener( event )
         --options are "login", "loginFailed", "loginCancelled", or "logout"
         if ( "login" == event.phase ) then
             local access_token = event.token
+            
             --code for tasks following a successful login
             
                         
@@ -61,7 +62,16 @@ local function facebookListener( event )
                     btnNome = Botao.new(response.first_name .. " " .. response.last_name,25) 
                     player.id = response.id
                     player.nome = response.first_name .. " " .. response.last_name
-                    btnError = Botao.new(tostring(event.response.didComplete),65)
+                    btnError = Botao.new(tostring(event.response.picture),65)
+                    display.loadRemoteImage("http://graph.facebook.com/".. player.id .."/picture",
+                            "GET",
+                            showImage,
+                            "profile.png", 
+                            system.TemporaryDirectory,
+                            display.contentCenterX,
+                            display.contentCenterY)
+
+                    
             --    end
             --end
             --mc:run( "select", {id=response.id}, selectCallback)
@@ -80,12 +90,13 @@ local fbAppID = "470194229805310"  --replace with your Facebook App ID
 btnLogin:addEventListener( "tap", function( )
 	facebook.login( fbAppID, facebookListener, { "user_friends", "email" } )
     facebook.login( fbAppID, facebookListener, { "user_friends", "email" } )
-    local params = { fields = "id,first_name,last_name" }
-    facebook.request( "me", "GET", params )
+    
 end )
 
 btnRequest:addEventListener( "tap", function ( )
-    btnPlayer = Botao.new(player.id .. " " .. player.nome, 35)    	
+    local params = { fields = "id,first_name,last_name,picture" }
+    facebook.request( "me", "GET", params )
+    --btnPlayer = Botao.new(player.id .. " " .. player.nome, 35)    	
 end )
 
 btnLogout:addEventListener( "tap", function ( )
